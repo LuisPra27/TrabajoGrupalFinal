@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import './App.css';
 
 const App = () => {
-
     const navigate = useNavigate();
     
     const [projects, setProjects] = useState(() => {
@@ -17,18 +16,10 @@ const App = () => {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser')) || { username: 'Invitado' };
 
     useEffect(() => {
-        const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser'));
-        if (rememberedUser) {
-            setUsername(rememberedUser.username);
-            setPassword(rememberedUser.password);
-            setRememberMe(true);
-        }
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-        if (currentUser) {
-            navigate('/');  // Si ya está logueado, redirige a la página principal
-        }
-    }, [navigate]);
-    
+        localStorage.setItem('projects', JSON.stringify(projects));
+        localStorage.setItem('projectCount', projectCount.toString());
+    }, [projects, projectCount]);
+
    
 
     const addNewProject = () => {
