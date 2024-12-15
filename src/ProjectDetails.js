@@ -9,9 +9,11 @@ const ProjectDetails = () => {
     const projectID = new URLSearchParams(window.location.search).get('id');
 
     useEffect(() => {
-        loadProjectDetails();
         loadAvailableUsers();
-    }, []);
+        loadProjectDetails();
+        updateProgress();
+      }, [loadAvailableUsers, loadProjectDetails, updateProgress]);
+      
 
     useEffect(() => {
         if (project && project.objectives) {
