@@ -11,15 +11,15 @@ const AppRouter = () => {
     return (
         <Router>
             <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+                <Route path="/Login" element={<Login />} />
+                <Route path="/Register" element={<Register />} />
                 <Route 
                     path="/" 
-                    element={currentUser ? <App /> : <Navigate to="/login" replace />} 
+                    element={currentUser ? <App /> : <Navigate to="/Login" replace />} 
                 />
                 <Route 
                     path="/project-details" 
-                    element={currentUser ? <ProjectDetails /> : <Navigate to="/login" replace />} 
+                    element={currentUser ? <ProjectDetails /> : <Navigate to="/Login" replace />} 
                 />
                 {/* Redirigir cualquier ruta no válida */}
                 <Route path="*" element={<Navigate to="/" replace />} />
