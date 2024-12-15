@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './App.css';
 
 const App = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [rememberMe, setRememberMe] = useState(false);
+
     const navigate = useNavigate();
     
     const [projects, setProjects] = useState(() => {
