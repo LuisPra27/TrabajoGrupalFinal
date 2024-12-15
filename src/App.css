@@ -8,7 +8,7 @@
 }
 
 .grid-item {
-  background-color: #0099ff;
+  background-color: #3498db;
   color: rgb(255, 255, 255);
   padding: 20px;
   border: 2px solid #000000;
@@ -20,7 +20,7 @@
 
 .grid-item:hover {
   transform: scale(1.05);
-  background-color: #3498db;
+  background-color: #0099ff;
 }
 
 .truncate-text {
