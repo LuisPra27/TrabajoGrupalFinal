@@ -57,7 +57,7 @@ const Login = () => {
                         required
                     />
                 </div>
-                <button type="submit"onClick={() => navigate('/App')}>Ingresar</button>
+                <button type="submit">Ingresar</button>
                 <div className="remember-me">
                     <input
                         type="checkbox"

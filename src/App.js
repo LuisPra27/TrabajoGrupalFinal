@@ -76,6 +76,7 @@ const App = () => {
                     >
                         <h3 className="project-title">{project.title}</h3>
                         <p>{project.content}</p>
+                        <p class="project-creator">Creado por: {project.creator}</p>
                         <button className="delete-btn" onClick={(e) => {
                             e.stopPropagation();
                             deleteProject(project.id);
