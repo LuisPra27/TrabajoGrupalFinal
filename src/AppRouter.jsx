@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import App from './App';
 import Login from './Login';
@@ -6,7 +6,26 @@ import Register from './Register';
 import ProjectDetails from './ProjectDetails';
 
 const AppRouter = () => {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+    const [currentUser, setCurrentUser] = useState(null);
+
+    useEffect(() => {
+        // Check for current user on component mount and whenever session storage changes
+        const checkCurrentUser = () => {
+            const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            setCurrentUser(storedUser);
+        };
+
+        // Initial check
+        checkCurrentUser();
+
+        // Add event listener for storage changes
+        window.addEventListener('storage', checkCurrentUser);
+
+        // Cleanup listener
+        return () => {
+            window.removeEventListener('storage', checkCurrentUser);
+        };
+    }, []);
 
     return (
         <Router>

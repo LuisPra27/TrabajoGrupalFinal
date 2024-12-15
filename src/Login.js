@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './App.css';
+
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -23,6 +24,10 @@ const Login = () => {
 
         if (user) {
             sessionStorage.setItem('currentUser', JSON.stringify({ username }));
+            
+            // Dispatch storage event to trigger updates across the app
+            window.dispatchEvent(new Event('storage'));
+
             if (rememberMe) {
                 localStorage.setItem('rememberedUser', JSON.stringify({ username, password }));
             } else {
@@ -33,7 +38,6 @@ const Login = () => {
             alert('Nombre de usuario o contraseña incorrectos');
         }
     };
-
     return (
         <div className="container">
             <form onSubmit={handleSubmit}>
