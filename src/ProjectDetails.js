@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const ProjectDetails = () => {
     const [project, setProject] = useState(null);
@@ -8,60 +8,76 @@ const ProjectDetails = () => {
     const [progress, setProgress] = useState(0);
     const projectID = new URLSearchParams(window.location.search).get('id');
 
-    
+    // useCallback para que no cambien entre renders
+    const loadProjectDetails = useCallback(() => {
+        const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+        const projectData = projects.find(p => p.id === projectID);
+        
+        if (projectData) {
+            projectData.members = projectData.members || [];
+            projectData.objectives = projectData.objectives || [];
+        }
+        
+        setProject(projectData);
+    }, [projectID]);  // Dependencia en projectID
+
+    const loadAvailableUsers = useCallback(() => {
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+        const project = projects.find(p => p.id === projectID);
+
+        if (project) {
+            const currentMembers = project.members || [];
+            const availableUsers = users.filter(
+                user => !currentMembers.includes(user.username)
+            );
+            setAvailableUsers(availableUsers);
+            setSelectedUsers([]);
+        }
+    }, [projectID]);  // Dependencia en projectID
+
+    const updateProgress = useCallback(() => {
+        if (project && project.objectives && project.objectives.length > 0) {
+            const totalObjectives = project.objectives.length;
+            const checkboxState = JSON.parse(localStorage.getItem(`project_${projectID}_checkboxes`) || '[]');
+            
+            if (checkboxState.length === 0) {
+                const initialCheckboxState = new Array(totalObjectives).fill(false);
+                localStorage.setItem(`project_${projectID}_checkboxes`, JSON.stringify(initialCheckboxState));
+            }
+            
+            const completedObjectives = checkboxState.filter(Boolean).length;
+            const calculatedProgress = (completedObjectives / totalObjectives) * 100;
+
+            setProgress(isNaN(calculatedProgress) ? 0 : calculatedProgress);
+        } else {
+            setProgress(0);
+        }
+    }, [project, projectID]);  // Dependencias en project y projectID
 
     useEffect(() => {
-        if (project && project.objectives) {
-            updateProgress();
-        }
-    }, [project]);
-
-    const loadProjectDetails = () => {
-      const projects = JSON.parse(localStorage.getItem('projects') || '[]');
-      const projectData = projects.find(p => p.id === projectID);
-      
-
-      if (projectData) {
-          projectData.members = projectData.members || [];
-          projectData.objectives = projectData.objectives || [];
-      }
-      
-      setProject(projectData);
-  };
-    useEffect(() =>{
         loadProjectDetails();
-    }, []);
+    }, [loadProjectDetails]);
 
-    const loadAvailableUsers = () => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const projects = JSON.parse(localStorage.getItem('projects') || '[]');
-    const project = projects.find(p => p.id === projectID);
-
-    if (project) {
-        const currentMembers = project.members || [];
-        const availableUsers = users.filter(
-            user => !currentMembers.includes(user.username)
-        );
-        setAvailableUsers(availableUsers);
-        setSelectedUsers([]);
-    }
-    };
-    useEffect(() =>{
+    useEffect(() => {
         loadAvailableUsers();
-    }, []);
+    }, [loadAvailableUsers]);
+
+    useEffect(() => {
+        updateProgress();
+    }, [updateProgress]);
 
     const handleAddMember = () => {
-
-      const uniqueSelectedUsers = selectedUsers.filter(user => 
-          !project.members.includes(user)
-      );
+        const uniqueSelectedUsers = selectedUsers.filter(user => 
+            !project.members.includes(user)
+        );
   
-      if (uniqueSelectedUsers.length > 0) {
-          const updatedMembers = [...project.members, ...uniqueSelectedUsers];
-          updateProjectData({ ...project, members: updatedMembers });
-      } else {
-          alert('No hay usuarios nuevos para agregar');
-      }
+        if (uniqueSelectedUsers.length > 0) {
+            const updatedMembers = [...project.members, ...uniqueSelectedUsers];
+            updateProjectData({ ...project, members: updatedMembers });
+        } else {
+            alert('No hay usuarios nuevos para agregar');
+        }
     };
 
     const handleRemoveMember = (username) => {
@@ -79,9 +95,6 @@ const ProjectDetails = () => {
             loadAvailableUsers();
         }
     };
-    useEffect(() =>{
-        updateProgress();
-    }, []);
 
     const handleAddObjective = () => {
         if (newObjective.trim()) {
@@ -92,43 +105,22 @@ const ProjectDetails = () => {
     };
 
     const handleRemoveObjective = (index) => {
-      const updatedObjectives = [...project.objectives];
-      const checkboxState = JSON.parse(localStorage.getItem(`project_${projectID}_checkboxes`) || '[]');
-      
-      const wasChecked = checkboxState[index];
-  
-      updatedObjectives.splice(index, 1);
-      checkboxState.splice(index, 1);
-      
-      localStorage.setItem(`project_${projectID}_checkboxes`, JSON.stringify(checkboxState));
-      
-      updateProjectData({ ...project, objectives: updatedObjectives });
-  
+        const updatedObjectives = [...project.objectives];
+        const checkboxState = JSON.parse(localStorage.getItem(`project_${projectID}_checkboxes`) || '[]');
+        
+        const wasChecked = checkboxState[index];
+    
+        updatedObjectives.splice(index, 1);
+        checkboxState.splice(index, 1);
+        
+        localStorage.setItem(`project_${projectID}_checkboxes`, JSON.stringify(checkboxState));
+        
+        updateProjectData({ ...project, objectives: updatedObjectives });
 
-      if (wasChecked) {
-          updateProgress();
-      }
-  };
-  
-  const updateProgress = () => {
-      if (project && project.objectives && project.objectives.length > 0) {
-          const totalObjectives = project.objectives.length;
-          const checkboxState = JSON.parse(localStorage.getItem(`project_${projectID}_checkboxes`) || '[]');
-          
-          if (checkboxState.length === 0) {
-              const initialCheckboxState = new Array(totalObjectives).fill(false);
-              localStorage.setItem(`project_${projectID}_checkboxes`, JSON.stringify(initialCheckboxState));
-          }
-          
-          const completedObjectives = checkboxState.filter(Boolean).length;
-          const calculatedProgress = (completedObjectives / totalObjectives) * 100;
-  
-          setProgress(isNaN(calculatedProgress) ? 0 : calculatedProgress);
-      } else {
-          setProgress(0);
-      }
-  };
-  
+        if (wasChecked) {
+            updateProgress();
+        }
+    };
 
     const handleCheckboxChange = (index) => {
         const checkboxState = JSON.parse(localStorage.getItem(`project_${projectID}_checkboxes`) || '[]');
@@ -136,13 +128,6 @@ const ProjectDetails = () => {
         localStorage.setItem(`project_${projectID}_checkboxes`, JSON.stringify(checkboxState));
         updateProgress();
     };
-
-    useEffect(() => {
-        loadAvailableUsers();
-        loadProjectDetails();
-        updateProgress();
-      }, [loadAvailableUsers, loadProjectDetails, updateProgress]);
-      
 
     return (
         <div>
@@ -197,7 +182,6 @@ const ProjectDetails = () => {
                         <div className="members-selector">
                             <select multiple onChange={(e) => setSelectedUsers(Array.from(e.target.selectedOptions).map(option => option.value))}>
                                 {availableUsers.map((user, index) => (
-                                    
                                     <option key={index} value={user.username}>
                                         {user.username}
                                     </option>
