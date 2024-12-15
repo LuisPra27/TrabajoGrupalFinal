@@ -8,12 +8,7 @@ const ProjectDetails = () => {
     const [progress, setProgress] = useState(0);
     const projectID = new URLSearchParams(window.location.search).get('id');
 
-    useEffect(() => {
-        loadAvailableUsers();
-        loadProjectDetails();
-        updateProgress();
-      }, [loadAvailableUsers, loadProjectDetails, updateProgress]);
-      
+    
 
     useEffect(() => {
         if (project && project.objectives) {
@@ -33,6 +28,9 @@ const ProjectDetails = () => {
       
       setProject(projectData);
   };
+    useEffect(() =>{
+        loadProjectDetails();
+    }, []);
 
     const loadAvailableUsers = () => {
     const users = JSON.parse(localStorage.getItem('users') || '[]');
@@ -48,6 +46,9 @@ const ProjectDetails = () => {
         setSelectedUsers([]);
     }
     };
+    useEffect(() =>{
+        loadAvailableUsers();
+    }, []);
 
     const handleAddMember = () => {
 
@@ -78,6 +79,9 @@ const ProjectDetails = () => {
             loadAvailableUsers();
         }
     };
+    useEffect(() =>{
+        updateProgress();
+    }, []);
 
     const handleAddObjective = () => {
         if (newObjective.trim()) {
@@ -132,6 +136,13 @@ const ProjectDetails = () => {
         localStorage.setItem(`project_${projectID}_checkboxes`, JSON.stringify(checkboxState));
         updateProgress();
     };
+
+    useEffect(() => {
+        loadAvailableUsers();
+        loadProjectDetails();
+        updateProgress();
+      }, [loadAvailableUsers, loadProjectDetails, updateProgress]);
+      
 
     return (
         <div>
