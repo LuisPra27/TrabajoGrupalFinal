@@ -16,10 +16,18 @@ const App = () => {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser')) || { username: 'Invitado' };
 
     useEffect(() => {
-        localStorage.setItem('projects', JSON.stringify(projects));
-        localStorage.setItem('projectCount', projectCount.toString());
-    }, [projects, projectCount]);
-
+        const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser'));
+        if (rememberedUser) {
+            setUsername(rememberedUser.username);
+            setPassword(rememberedUser.password);
+            setRememberMe(true);
+        }
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        if (currentUser) {
+            navigate('/');  // Si ya está logueado, redirige a la página principal
+        }
+    }, [navigate]);
+    
    
 
     const addNewProject = () => {
@@ -53,8 +61,10 @@ const App = () => {
 
     const handleLogout = () => {
         sessionStorage.removeItem('currentUser');
+        localStorage.removeItem('rememberedUser');
         navigate('/login');
     };
+    
 
     return (
         <div>
